@@ -33,9 +33,28 @@ class EmpresasView(View):
         return JsonResponse(datos)
 
 
-    def post(selft,request):
+    def post(self,request):
             data=json.loads(request.body)
             empresa=Empresas(id_empresas=data['id_empresas'],nombre=data['nombre'],ciudad=data['ciudad'],nit=data['nit'],sector_produc=data['sector_produc'],telefono=data['telefono'],fecha_creacion=data['fecha_creacion'])
             empresa.save()
             datos={'mensaje': 'Empresa Registrada Exitosamente'}
             return JsonResponse(datos)
+        
+    def put(self,request,id_empresas):
+            data=json.loads(request.body)
+            empresa=list(Empresas.objects.filter(Id_empresas=id_empresas).values())
+            if len (empresa>0):
+                emp=Empresas.objects.get(Id_empresas=id_empresas)
+                emp.nombre=data["nombre"]
+                emp.direccion=data["direccion"]
+                emp.ciudad =data["ciudad"]
+                emp.nit = data["nit"]
+                emp.sector_produc= data["sector_produc"]
+                emp.telefono = data["telefono"]
+                emp.fecha_creacion =data["fecha_creacion"]
+                emp.save()
+                mensaje = {"mensaje":"Empresa actualizada exitosamente"}
+            else:
+                mensaje={"mensaje":"No se encontro la empresa"}
+            
+            return JsonResponse(mensaje)
