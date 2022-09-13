@@ -4,6 +4,8 @@ from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
 from modeloRelacionalBaseDeDatos.models import Empresas
 from django.http import JsonResponse
+
+from sprint_2.modeloRelacionalBaseDeDatos.models import Empleado
 #from django.shortcuts import render
 
 # Create your views here.
@@ -56,5 +58,23 @@ class EmpresasView(View):
                 mensaje = {"mensaje":"Empresa actualizada exitosamente"}
             else:
                 mensaje={"mensaje":"No se encontro la empresa"}
+            
+            return JsonResponse(mensaje)
+        
+    def put(self,request,id_empleado):
+            data=json.loads(request.body)
+            empleado=list(Empleado.objects.filter(Id_empleado=id_empleado).values())
+            if len (empleado)>0:
+                emp=Empleado.objects.get(Id_empleado=id_empleado)
+                emp.nombre=data["nombre"]
+                emp.apellido=data["apellido"]
+                emp.email =data["email"]
+                emp.telefono = data["telefono"]
+                emp.empresas_id = data["empresas_id"]
+                emp.fecha_creacion =data["fecha_creacion"]
+                emp.save()
+                mensaje = {"mensaje":"Empleado actualizado exitosamente"}
+            else:
+                mensaje={"mensaje":"No se encontro el Empleado"}
             
             return JsonResponse(mensaje)
