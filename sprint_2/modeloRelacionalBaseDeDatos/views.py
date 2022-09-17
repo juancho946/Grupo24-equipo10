@@ -2,10 +2,10 @@ import json
 from django.views import View
 from django.views.decorators.csrf import csrf_exempt
 from django.utils.decorators import method_decorator
-from modeloRelacionalBaseDeDatos.models import Empresas
+from modeloRelacionalBaseDeDatos.models import Empresas,Empleado,Reporte_contable
 from django.http import JsonResponse
 
-from sprint_2.modeloRelacionalBaseDeDatos.models import Empleado
+
 #from django.shortcuts import render
 
 # Create your views here.
@@ -78,3 +78,27 @@ class EmpresasView(View):
                 mensaje={"mensaje":"No se encontro el Empleado"}
             
             return JsonResponse(mensaje)
+
+class Reporte_contableView(View):
+
+    @method_decorator(csrf_exempt)
+    def dispatch(self, request, *args, **kwargs):
+        return super().dispatch(request, *args, **kwargs)
+
+
+    def get(self,request,idestado=""):
+
+        if len(idestado)>0:
+            estado=list(Reporte_contable.objects.filter(id_estado=idestado).values())
+            if len(estado)>0:
+                datos={'Estado':estado}
+            else:
+                datos={'mensaje':"No se encontró el Estado Financiero."} 
+        else:
+            estado=list(Reporte_contable.objects.values())
+            if len(estado)>0:
+                datos={"mensaje":estado}
+            else:
+                datos={"mensaje":"No se encontro ningun Reporte."}
+
+        return JsonResponse(datos)
