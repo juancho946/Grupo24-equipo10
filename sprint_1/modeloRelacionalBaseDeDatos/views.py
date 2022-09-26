@@ -7,6 +7,7 @@ from modeloRelacionalBaseDeDatos.models import Empleado, Rol, Empresas, Reporte_
 from django.http import JsonResponse
 
 
+
 #____________________TABLA EMPRESAS______________________
 
 class EmpresasView(View):
@@ -46,11 +47,11 @@ class EmpresasView(View):
 
     #FUNCION PARA ACTUALIZAR EMPRESAS
 
-    def put(self,request,idempresas): #funcion para actualizar la empresa
+    def put(self,request,idempresas): 
         data=json.loads(request.body)
         empresa=list(Empresas.objects.filter(id_empresas=idempresas).values()) #este es el formato lista para la lectura del json
         if len(empresa)>0:
-                empre=Empresas.objects.get(id_empresas=idempresas)  #dat es el objeto
+                empre=Empresas.objects.get(id_empresas=idempresas)  
                 empre.nombre=data["nombre"]
                 empre.direccion=data["direccion"]
                 empre.ciudad=data["ciudad"]
@@ -59,7 +60,7 @@ class EmpresasView(View):
                 empre.telefono=data["telefono"]
                 empre.fecha_creacion=data["fecha_creacion"]
                 empre.save()
-                mensaje={"mensaje":"Empresa actualizada exitosamente."}
+                mensaje = {"mensaje":"Empresa actualizada exitosamente."}
         else:
             mensaje={"mensaje":"No se encontró la empresa."}
             
@@ -86,7 +87,7 @@ class RolView(View):
     def dispatch(self, request, *args, **kwargs):
         return super().dispatch(request,*args,**kwargs)
 
-    #FUNCION PARA OBTENER UN ROL
+        #FUNCION PARA OBTENER UN ROL
     
     def get(selft,request,Id_rol=""):
 
@@ -107,6 +108,15 @@ class RolView(View):
 
         return JsonResponse(datos)
 
+         #FUNCION PARA INGRESAR UN ROL
+
+    def post(self,request):
+        data=json.loads(request.body)
+        rol=Rol(id_rol=data['id_rol'],tipo=data['tipo'])
+        rol.save()
+        datos={'mensaje':'Rol registrado exitosamente.'}
+
+        return JsonResponse(datos)
     
 
 #____________________TABLA EMPLEADOS______________________
@@ -117,7 +127,7 @@ class EmpleadoView(View):
         return super().dispatch(request, *args, **kwargs)
 
 
-#________________FUNCION PARA OBTENER EMPLEADOS___________________        
+        #FUNCION PARA OBTENER EMPLEADOS      
 
     def get(self,request,idempleado=""):
 
@@ -137,41 +147,43 @@ class EmpleadoView(View):
         return JsonResponse(datos)
 
 
-#________________FUNCION PARA AGREGAR EMPLEADOS___________________
-
+        #FUNCION PARA AGREGAR EMPLEADOS
 
     def post (self,request):
         data=json.loads(request.body)
-
-        roles=Rol.objects.get(id_rol=data["rol"])
-        empre=Empresas.objects.get(id_empresas=data["empresas"])
-        emple=Empleado.objects.create(empresas_id=empre, rol=roles)
-        emple.save()
-        mensaje={"Mensaje":"Empleado registrado exitosamente"}
+        #print(data)
+        try: 
+            roles=Rol.objects.get(id_rol=data["rol"])
+            empre=Empresas.objects.get(id_empresas=data["empresas_id"])
+            emple=Empleado.objects.create(id_empleado=data["id_empleado"],empresas_id=empre, rol=roles,nombre=data['nombre'],apellido=data['apellido'],email=data['email'],telefono=data['telefono'],fecha_creacion=data['fecha_creacion'])
+            emple.save()
+            mensaje={"Mensaje":"Empleado registrado exitosamente"}
+        except Empresas.DoesNotExist:
+            mensaje={"Mensaje":"la empresa no existe"}
+        except Rol.DoesNotExist:
+            mensaje={"Mensaje":"el Rol no existe"}
 
         return JsonResponse(mensaje)
 
-#FUNCION PARA EDITAR EMPLEADOS
 
-    def put(self,request,id_empleado):
-            data=json.loads(request.body)
-            empleado=list(Empleado.objects.filter(Id_empleado=id_empleado).values())
-            if len (empleado)>0:
-                emp=Empleado.objects.get(Id_empleado=id_empleado)
-                emp.nombre=data["nombre"]
-                emp.apellido=data["apellido"]
-                emp.email =data["email"]
-                emp.telefono = data["telefono"]
-                emp.empresas_id = data["empresas_id"]
-                emp.fecha_creacion =data["fecha_creacion"]
-                emp.save()
-                mensaje = {"mensaje":"Empleado actualizado exitosamente"}
-            else:
-                mensaje={"mensaje":"No se encontro el Empleado"}
+        #FUNCION PARA ACTUALIZAR EMPLEADOS
+         
+    def put(self,request,idempleado):
+        data=json.loads(request.body)
+        empleado=list(Empleado.objects.filter(id_empleado=idempleado).values())
+        if len(empleado)>0:
+            roles=Rol.objects.get(id_rol=data["rol"])
+            empre=Empresas.objects.get(id_empresas=data["empresas_id"])
+            emple=Empleado.objects.update(empresas_id=empre, rol_id=roles,nombre=data['nombre'],apellido=data['apellido'],email=data['email'],telefono=data['telefono'],fecha_creacion=data['fecha_creacion'])
+            emple.save()
+            mensaje={"mensaje":"Empleado actualizado exitosamente"}
+
+        return JsonResponse(mensaje)
             
-            return JsonResponse(mensaje)
 
-#_______TABLA REPORTE CONTABLE_______
+
+
+        #_______TABLA REPORTE CONTABLE_______
 
 class Reporte_contableView(View):
 
@@ -198,3 +210,23 @@ class Reporte_contableView(View):
 
         return JsonResponse(datos)
 
+
+
+    
+        
+        
+
+    
+    
+
+
+    
+
+            
+       
+
+         
+
+
+
+        
