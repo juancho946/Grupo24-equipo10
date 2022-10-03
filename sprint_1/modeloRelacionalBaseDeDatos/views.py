@@ -151,34 +151,37 @@ class EmpleadoView(View):
 
     def post (self,request):
         data=json.loads(request.body)
-        #print(data)
-        try: 
-            roles=Rol.objects.get(id_rol=data["rol"])
-            empre=Empresas.objects.get(id_empresas=data["empresas_id"])
-            emple=Empleado.objects.create(id_empleado=data["id_empleado"],empresas_id=empre, rol=roles,nombre=data['nombre'],apellido=data['apellido'],email=data['email'],telefono=data['telefono'],fecha_creacion=data['fecha_creacion'])
-            emple.save()
-            mensaje={"Mensaje":"Empleado registrado exitosamente"}
-        except Empresas.DoesNotExist:
-            mensaje={"Mensaje":"la empresa no existe"}
-        except Rol.DoesNotExist:
-            mensaje={"Mensaje":"el Rol no existe"}
+        print(data)
+        roles=Rol.objects.get(id_rol=data["rol"])
+        empre=Empresas.objects.get(id_empresas=data["empresas_id"])
+        emple=Empleado.objects.create(id_empleado=data["id_empleado"],empresas_id=empre, rol=roles,nombre=data['nombre'],apellido=data['apellido'],email=data['email'],telefono=data['telefono'],fecha_creacion=data['fecha_creacion'])
+        emple.save()
+        mensaje={"Mensaje":"Empleado registrado exitosamente"}
 
         return JsonResponse(mensaje)
 
 
-        #FUNCION PARA ACTUALIZAR EMPLEADOS
+         #FUNCION PARA ACTUALIZAR EMPLEADOS
          
+
     def put(self,request,idempleado):
         data=json.loads(request.body)
         empleado=list(Empleado.objects.filter(id_empleado=idempleado).values())
         if len(empleado)>0:
+            emple=Empleado.objects.get(id_empleado=data["id_empleado"])
             roles=Rol.objects.get(id_rol=data["rol"])
-            empre=Empresas.objects.get(id_empresas=data["empresas_id"])
-            emple=Empleado.objects.update(empresas_id=empre, rol_id=roles,nombre=data['nombre'],apellido=data['apellido'],email=data['email'],telefono=data['telefono'],fecha_creacion=data['fecha_creacion'])
+            empresa=Empresas.objects.get(id_empresas=data["empresas_id"])
+            emple.nombre=data['nombre']
+            emple.apellido=data['apellido']
+            emple.email=data['email']
+            emple.telefono=data['telefono']
+            emple.fecha_creacion=data['fecha_creacion']
             emple.save()
             mensaje={"mensaje":"Empleado actualizado exitosamente"}
 
         return JsonResponse(mensaje)
+
+        
             
 
 
@@ -209,6 +212,22 @@ class Reporte_contableView(View):
                 datos={"mensaje":"No se encontro ningun Reporte."}
 
         return JsonResponse(datos)
+
+        #FUNCION PARA INGRESAR REPORTE CONTABLE
+
+
+    def post (self,request):
+        data=json.loads(request.body)
+        print(data)
+        roles=Rol.objects.get(id_rol=data["empleado_rol"])
+        empre=Empresas.objects.get(id_empresas=data["empleado_empresas"])
+        emple=Empleado.objects.get (id_empleado=data["empleado_id"])
+        Report=Reporte_contable.objects.create(id_estado=data['id_estado'],empleado_id=emple,empleado_empresas=empre, empleado_rol=roles,estado=data['estado'],fecha=data['fecha'],monto=data['monto'])
+        Report.save()
+        mensaje={"Mensaje":"Reporte registrado exitosamente"}
+
+        return JsonResponse(mensaje)
+
 
 
 
